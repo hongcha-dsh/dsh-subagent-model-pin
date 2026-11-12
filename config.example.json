@@ -1,0 +1,9 @@
+{
+  "mode": "pin",
+  "provider": "dsh-opencode-go",
+  "model": "deepseek-v4.1-flash",
+  "honorExplicit": false,
+  "includeRoot": false,
+  "audit": true,
+  "killOnViolation": true
+}

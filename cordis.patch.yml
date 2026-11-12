@@ -1,0 +1,20 @@
+# dsh-subagent-model-pin — Host-only bundle
+# 所有子代理统一钉到下面配置的子模型；主会话不受影响。
+#
+# 选择子模型有两种方式（都生效，后者优先）：
+#   1. 改本行 config（下次启动生效）
+#   2. 改插件目录的 config.json（热加载，≤3 秒生效，DSH 升级不受影响）
+#
+# 想用 profile 用户补丁层覆盖（跨升级保留），在 $DSH_HOME/profiles/<profile>/cordis.patch.yml 里
+# 追加同名 id 的行，config 会整份替换。
+- insert:
+    - id: subagent-model-pin
+      name: dsh-subagent-model-pin
+      config:
+        mode: pin
+        provider: dsh-opencode-go
+        model: deepseek-v4.1-flash
+        # false = 连显式指定的别的模型也一律钉死（防止额度被打穿）
+        honorExplicit: false
+        includeRoot: false
+        audit: true

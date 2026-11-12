@@ -1,0 +1,9 @@
+# DSH runtime state, never publish
+config.json
+pin.jsonl
+
+# OS / editor
+.DS_Store
+Thumbs.db
+node_modules/
+*.log

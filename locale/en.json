@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Subagent model pin",
+    "description": "Pin every subagent to one model; abort and notify the parent when a subagent drifts.",
+    "detail": "detail.md"
+  }
+}
