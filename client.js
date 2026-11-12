@@ -189,14 +189,7 @@ window.__ModuleLoader__.load({
                   checked: Boolean(draft.honorExplicit),
                   onChange: (e) => set({ honorExplicit: e.target.checked }),
                 }),
-                '尊重显式选择'),
-              h('label', { style: { ...hint, display: 'flex', gap: 6, alignItems: 'center' } },
-                h('input', {
-                  type: 'checkbox',
-                  checked: Boolean(draft.includeRoot),
-                  onChange: (e) => set({ includeRoot: e.target.checked }),
-                }),
-                '也管主会话')
+                '尊重显式选择')
             ),
             h('div', { style: row },
               h('button', { style: button, disabled: busy, onClick: save }, busy ? '保存中…' : '保存'),

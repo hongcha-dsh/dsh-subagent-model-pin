@@ -27,8 +27,6 @@ const DEFAULTS = {
   reasoningEffort: undefined,
   /** false = 连显式指定的别的模型也覆盖（默认） */
   honorExplicit: false,
-  /** 是否连根级主会话也钉 */
-  includeRoot: false,
   /** 写审计 jsonl */
   audit: true,
   /** 发现越界就打断（默认 true） */
@@ -53,7 +51,6 @@ function normalizeConfig(raw, base) {
     model: typeof merged.model === 'string' && merged.model.length > 0 ? merged.model : base.model,
     mode: merged.mode === 'audit' ? 'audit' : 'pin',
     honorExplicit: merged.honorExplicit === true,
-    includeRoot: merged.includeRoot === true,
     audit: merged.audit !== false,
     killOnViolation: merged.killOnViolation !== false,
   }
@@ -145,9 +142,9 @@ export function apply(ctx, config) {
     }
   }
 
+  /** 只管子代理：有父会话，或 origin 标记为 subagent。主会话永不被管理。 */
   const isManaged = (header) => {
     if (!header) return false
-    if (live.includeRoot) return true
     if (header.parentSession) return true
     return header.origin === 'subagent'
   }
@@ -213,9 +210,8 @@ export function apply(ctx, config) {
       const current = typeof model?.current === 'function' ? model.current() : undefined
 
       stage = 'guard'
-      // 只在"真子代理"（有父会话）上装越界打断。主会话即便 includeRoot=true 也绝不打断，
-      // 否则用户手动切模型会把主对话直接掐掉。
-      if (header?.parentSession) installGuard(agent)
+      // isManaged 已经保证只命中子代理，所以这里装守卫不会碰到主会话。
+      installGuard(agent)
 
       if (current && current.provider === want.provider && current.model === want.model) {
         writeAudit({ event: 'already', agent: agent?.id, want })
@@ -311,7 +307,6 @@ export function apply(ctx, config) {
       model: live.model,
       reasoningEffort: live.reasoningEffort ?? null,
       honorExplicit: live.honorExplicit,
-      includeRoot: live.includeRoot,
       audit: live.audit,
       killOnViolation: live.killOnViolation,
     },

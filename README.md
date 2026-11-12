@@ -40,7 +40,7 @@ DSH 的 `tool-subagent` 在委派调用**没有显式写 `provider`/`model`** �
 
 - Provider / Model 下拉（来自 `ctx.llm.listProviders()` + `listModels()` 的实时目录）
 - 模式：`pin — 钉住并越界打断` / `audit — 只记录，不干预`
-- 三个勾选：越界即打断、尊重显式选择、也管主会话
+- 三个勾选：越界即打断、尊重显式选择
 - 越界记录列表（可清空）
 
 保存走 `POST /plugins/subagent-model-pin/config`，写入插件目录 `config.json`，**立即生效**（无需重启）。
@@ -59,7 +59,6 @@ Host 侧路由（诊断用）：`GET /plugins/subagent-model-pin/state` 返回�
   "provider": "dsh-opencode-go",
   "model": "deepseek-v4.1-flash",
   "honorExplicit": false,
-  "includeRoot": false,
   "audit": true,
   "killOnViolation": true
 }
@@ -71,27 +70,19 @@ Host 侧路由（诊断用）：`GET /plugins/subagent-model-pin/state` 返回�
 | `provider` / `model` | ds4.1 | 全局唯一的子模型路由 |
 | `reasoningEffort` | 无 | 可选 |
 | `honorExplicit` | `false` | false = 连显式指定的别的模型也覆盖（推荐）；true = 尊重显式选择 |
-| `killOnViolation` | `true` | 越界即打断（仅 `pin` 模式、且只对子代理生效） |
-| `includeRoot` | `false` | 是否连**主会话**也钉到同一个模型（见下方说明） |
+| `killOnViolation` | `true` | 越界即打断（仅 `pin` 模式） |
 | `audit` | `true` | 写 `pin.jsonl` |
 
 > 想跨 DSH 升级保留配置：在 `$DSH_HOME/profiles/<profile>/cordis.patch.yml` 追加同名 id 的行
 > （该层是用户补丁层，升级不会清掉）。
 
-### 「也管主会话」是什么意思
+### 作用域：只管子代理，永不碰主会话
 
-默认 `includeRoot: false`，插件**只动子代理**，你主窗口用什么模型完全不受影响。
+插件的管理对象是**子代理**（有父会话的 agent，或 origin 为 `subagent`）。
+主会话不在作用域内 —— 你主窗口用什么模型完全由你自己决定，插件既不切换也不打断。
 
-勾上 `includeRoot: true` 后：**新开的每个主会话在创建时也会被切换到上面选的模型**。
-适合"我就想彻底只用 ds4.1，连主对话也不许上高价模型"的场景。
-
-注意两点：
-
-- 它只影响**新创建**的会话；已经开着的窗口不会被改。
-- **越界打断永远不作用于主会话**（即使勾了这个）。因为主会话没有父会话可提醒，真打断等于
-  把你自己的对话掐掉 —— 所以主会话只有"创建时改一次"这一层，没有逐步守卫。
-
-日常建议**保持关闭**：主会话用 k3.1 做规划、子代理用 ds4.1 干活，正是你要的分工。
+这是结构性保证，不是开关：早期版本有个 `includeRoot` 选项能让主会话也钉住，因为它会带来
+"手动切回高价模型就把自己的主对话掐掉"的风险，已整个移除。
 
 ## 验证记录（2026-11-12 实测）
 
