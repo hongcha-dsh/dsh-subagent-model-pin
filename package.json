@@ -1,7 +1,11 @@
 {
   "name": "dsh-subagent-model-pin",
   "version": "0.2.0",
-  "private": true,
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hongcha-dsh/dsh-subagent-model-pin.git"
+  },
   "type": "module",
   "description": "把所有子代理统一钉到指定模型；发现越界立即打断并通知主会话，防止子代理继承高价模型烧穿额度。",
   "exports": {
